@@ -17,9 +17,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         Button lvl1But = (Button)findViewById(R.id.lvl1);
         Button lvl2But = (Button)findViewById(R.id.lvl2);
+        Button lvl3But = (Button)findViewById(R.id.lvl3);
         lvl1But.setOnClickListener(this);
         lvl2But.setOnClickListener(this);
-
+        lvl3But.setOnClickListener(this);
     }
 
 

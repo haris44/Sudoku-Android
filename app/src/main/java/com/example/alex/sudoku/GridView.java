@@ -1,14 +1,16 @@
 package com.example.alex.sudoku;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.Pair;
+import android.util.StringBuilderPrinter;
 import android.view.MotionEvent;
 import android.view.View;
+
+import java.util.ArrayList;
 
 /**
  * Created by Alex on 03/02/2017.
@@ -20,25 +22,22 @@ public class GridView extends View implements View.OnTouchListener {
 
     Case[][] arrCase = new Case[9][9];
     SelectableNumber[] arrNumber = new SelectableNumber[9];
-
+    Integer totalRemplissageGrid;
+    Integer startRemplissageGrid;
+    vGrille grid;
     public GridView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-       vGrille act = ((GameActivity) context).getGrid();
-        Log.d("activity", act.grid);
+        grid = ((GameActivity) context).getGrid();
+        int i = 0;
         for(int column = 0; column < 9; column++){
             for (int row = 0 ; row < 9; row++){
-                // load grid here
-                int num = 0;
-                if(column % 2 == 1){
-                    num = 10;
-                }
-
-                Case c = new Case(new CaseNumber(num), 100 * column, 100 * row, (100 * column + 100), (100 * row + 100));
+                Case c = new Case(new CaseNumber(Character.getNumericValue(grid.grid.toCharArray()[i])), new Pair(row, column), 100 * column, 100 * row, (100 * column + 100), (100 * row + 100));
                 arrCase[row][column] = c;
+                i += 1;
             }
         }
-
+        startRemplissageGrid = getRemplissageGrid();
         for(int place = 0; place < 9; place++){
             arrNumber[place] = new SelectableNumber(place + 1, 1000, 100 * place + 20, 1100, 100 * place + 100);
         }
@@ -101,7 +100,21 @@ public class GridView extends View implements View.OnTouchListener {
                     }
                 }
                 if(selectedcase != null){
-                    selectedcase.i.setNumber(selectedNumber.i);
+                    ArrayList<Case> arrC = getGroupe(selectedcase);
+                    boolean ok = true;
+                    for(Case c : arrC){
+                        if(c.i.content == selectedNumber.i){
+                            Log.d("Case", "case " + c.position.first + " " + c.position.second + " content : " + c.i.content);
+                            ok = false;
+                        }
+                    }
+                    if(ok){
+                        selectedcase.i.setNumber(selectedNumber.i);
+                        totalRemplissageGrid = getRemplissageGrid();
+                        grid.done = (totalRemplissageGrid - startRemplissageGrid) / (81 - startRemplissageGrid) * 100;
+                        grid.grid = getGrid();
+                    }
+
                 }
                 selectedNumber = null;
                 break;
@@ -111,5 +124,40 @@ public class GridView extends View implements View.OnTouchListener {
         return true;
     }
 
+    public int getRemplissageGrid(){
+        int r = 0;
+        for(Case[] arrC : this.arrCase){
+            for(Case currentC : arrC){
+                if(currentC.i.content != 0){
+                    r+=1;
+                }
+            }
+        }
+        return r;
+    }
+
+    public String getGrid(){
+        StringBuilder r = new StringBuilder();
+        for(Case[] arrC : this.arrCase){
+            for(Case currentC : arrC){
+                if(currentC.i.content != 0){
+                    r.append(currentC.i.content);
+                }
+            }
+        }
+        return r.toString();
+    }
+
+    public ArrayList<Case> getGroupe(Case c){
+        ArrayList<Case> rt = new ArrayList<>();
+        for(Case[] arrC : this.arrCase){
+            for(Case currentC : arrC){
+                if(c.isOnGroup(currentC)){
+                    rt.add(currentC);
+                }
+            }
+        }
+        return rt;
+    }
 
 }

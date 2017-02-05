@@ -28,22 +28,38 @@ public class LevelActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_level);
         Bundle objetbunble = this.getIntent().getExtras(); // récupération de la valeur
-        Integer InfoPasse = (Integer) objetbunble.getSerializable("lvl");
-        TextView lvl1But = (TextView) findViewById(R.id.text);
+        Integer lvlId = (Integer) objetbunble.getSerializable("lvl");
 
-        int fileResourceId = R.raw.zero;
+        int fileResourceId = 0;
+        int lvl = 0;
+        switch(lvlId){
+            case(R.id.lvl1):
+                fileResourceId =R.raw.zero;
+                lvl = 1;
+                break;
+            case(R.id.lvl2):
+                fileResourceId = R.raw.one;
+                lvl = 2;
+                break;
+            case(R.id.lvl3):
+                fileResourceId = R.raw.two;
+                lvl = 3;
+                break;
+        }
+
         InputStream is = this.getResources().openRawResource(fileResourceId);
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         StringBuilder out = new StringBuilder();
         String line;
         int i = 1;
-        final ArrayList<vGrille> grille1 = new ArrayList<>();
+
+        final ArrayList<vGrille> grille = new ArrayList<>();
 
         try {
             while ((line = reader.readLine()) != null) {
                 out.append(line);
-                grille1.add(new vGrille(2, i, 0, line));
+                grille.add(new vGrille(lvl, i, 0, line));
                 i += 1;
             }
         } catch (IOException e) {
@@ -60,13 +76,13 @@ public class LevelActivity extends AppCompatActivity {
 
                 Intent intention = new Intent(self, GameActivity.class);
                 Bundle bdn = new Bundle();
-                bdn.putSerializable("grid", grille1.get(position));
+                bdn.putSerializable("grid", grille.get(position));
                 intention.putExtras(bdn);
                 startActivity(intention);
             }
         });
 
-        list.setAdapter(new GrilleAdapter(this, grille1));
+        list.setAdapter(new GrilleAdapter(this, grille));
 
     }
 }
